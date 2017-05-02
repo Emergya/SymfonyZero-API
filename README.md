@@ -41,6 +41,33 @@ POSIX needs to be enabled (only on *nix)
  If you change the Symfony version, these requirements could change. In this case you must visit the [official site](http://symfony.com/doc/current/reference/requirements.html) to check them.
    
  Note: Doctrine Data Fixtures Extension needs PHP 5.6 or higher, so if you want to use it, you have to ensure at least that version of PHP is installed.
+ 
+ Also, to install the bundle to integrate with ElasticSearch, you need to follow several steps. First, we have to activate the bundle. Open _app/AppKernel.php_ file and uncomment the line:
+ 
+ ```sh
+ new FOS\ElasticaBundle\FOSElasticaBundle()
+ ```
+ Then, we have to activate the listener for indexing users. Open _app/config/services.yml_ file and uncomment the lines:
+ 
+ ```sh
+     symfonyzero.elastica_listener_users:
+        class: AppBundle\Listener\UsersListener
+        #Object_persister: entity indexed at elasticsearch.yml config file 
+        arguments:
+            - @fos_elastica.object_persister.symfonyzero.user
+            - @fos_elastica.indexable
+        calls:
+            - [ setContainer, ['@service_container'] ]
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: postUpdate }
+            - { name: kernel.event_listener, event: kernel.terminate, method: onKernelTerminate }
+ ```
+ Finally, we have to include the elasticsearch config file. Open _app/config/config.yml_ file and uncomment the line:
+ 
+ ```sh
+            - { resource: elasticsearch.yml }
+ ```
 
 # Setup
  
@@ -147,8 +174,10 @@ SymfonyZero-API has available a pre-configured third party bundles to give a sol
 *  [FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle) - FOSUserBundle provides a flexible framework for user management that aims to handle common tasks such as user registration and password retrieval.
 *  [FOSOAuthServerBundle](https://github.com/FriendsOfSymfony/FOSOAuthServerBundle) - FOSOAuthServerBundle provides a server side OAuth2 implementation.
 *  [SwitchUserStatelessBundle](https://github.com/lafourchette/SwitchUserStatelessBundle) - SwitchUserStatelessBundle allows admins to impersonate other users.
-*  [BazingaHateoasBundle](https://github.com/willdurand/BazingaHateoasBundle) - BazingaHateoasBundle provides support to build a 3rd level of API Rest. 
-Image 
+*  [BazingaHateoasBundle](https://github.com/willdurand/BazingaHateoasBundle) - BazingaHateoasBundle provides support to build a 3rd level of API Rest.
+*  [EasyAdminBundle](https://github.com/javiereguiluz/EasyAdminBundle) - EasyAdminBundle lets you create administration backends for Symfony applications with unprecedented simplicity.
+*  [ElasticaSearchBundle](https://github.com/FriendsOfSymfony/FOSElasticaBundle) - FosElasticaBundle provides integration with ElasticSearch
+ 
 
 **Common Sections and Functionality**
  
@@ -212,7 +241,14 @@ Another modification you can do is the *database configuration*. By default Symf
 
 All the functions are used like an examples in ApiBundle:DefaultController only with the goal you know how can you use them. In a real application you must remove them and use only the functions you need. 
 
-Of course, *each bundle* has a lot of different configuration you can change to adjust them to your needs. By default, SymfonyZero-API has the usual configuration for each bundle, but of course you can modify them. For this, you have to do these editions in _config.yml_ file which you can find in _app/config/_ route.
+Of course, *each bundle* has a lot of different configuration you can change to adjust them to your needs. By default, SymfonyZero-API has the usual configuration for each bundle, but of course you can modify them. For this, you have to do these editions in _config.yml_ file which you can find in _app/config/_ route. For example, EasyAdminBundle is prepared for the User Entity, but if you want to add a new one, you only have to modify this:
+
+```yml
+easy_admin:
+    entities:
+        ...
+        - AppBundle\Entity\YourNewEntity
+```
 
 SymfonyZero-API provides an example of data fixtures with some 'Comments'. You can use it to test the application.
 
@@ -221,6 +257,14 @@ You can find the fixtures already created in _src/ApiBundle/DataFixtures/ORM/Com
 ```sh
 $ php bin/console doctrine:fixtures:load
 ```
+
+If you have activated ElasticaBundle, you'll have to configure Elastic Search. Open the _app/config/parameters.yml_ file and include this parameters:
+```yml
+elastic_host: 
+elastic_port: 
+```
+
+
 
 In the previous section, you can find all the links for the official documentation for each bundle. Check it if you want to know all the possibilities to customize your application.
 
@@ -262,7 +306,8 @@ Then, you can set the _client_id_ and _secret_ you will get in your frontend app
 }
 ```
 
-* _client_id_ and _client_secret_: Are the values get previously in the console.
+* _client_id_: Value get previously in the console OR concatenate id column of client table + '_' character + random_id column of client table. Example: "1_34354235kwokooos4k0soksockskk848ckoww04ok0sc8wsw"
+* _client_secret_: Value get previously in the console.
 * _grant_type_: Is the literal "password".
 * _username_: Is the username of the user you want to authenticate.
 * _password_: Is the password of the user you want to authenticate.

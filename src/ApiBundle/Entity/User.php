@@ -122,4 +122,36 @@ class User extends BaseUser
     {
         return $this->name;
     }
+    
+    /**
+     * Returns if the user is indexable for elastic
+     *
+     * @return boolean
+     */
+    public function isIndexable()
+    {
+    	if ($this->getEmailCanonical() == 'admin@test.com') {
+    		return false;
+    	} else {
+    		return true;
+    	}
+    }
+    
+    
+    public function setExpiresAt(\DateTime $date = null)
+    {
+    	parent::setExpiresAt($date);
+    }
+    public function getExpiresAt()
+    {
+    	return $this->expiresAt;
+    }
+    public function setCredentialsExpireAt(\DateTime $date = null)
+    {
+    	parent::setCredentialsExpireAt($date);
+    }
+    public function getCredentialsExpireAt()
+    {
+    	return $this->credentialsExpireAt;
+    }
 }

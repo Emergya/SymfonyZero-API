@@ -4,6 +4,7 @@ imports:
     - { resource: services.yml }
     - { resource: "@ApiBundle/Resources/config/services.yml" }
     - { resource: "@OauthBundle/Resources/config/services.yml" }
+#    - { resource: elasticsearch.yml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -12,7 +13,7 @@ parameters:
 
 framework:
     #esi:             ~
-    #translator:      { fallbacks: ["%locale%"] }
+    translator:      { fallbacks: ["%locale%"] }
     secret:          "%secret%"
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
@@ -95,8 +96,9 @@ fos_rest:
         json: true
     format_listener:
         rules:
-            - { path: ^/demo, priorities: [ html ], fallback_format: html, prefer_extension: true }   
-            - { path: ^/, priorities: [ json ], fallback_format: json, prefer_extension: true }
+            - { path: ^/demo, priorities: [ html ], fallback_format: html, prefer_extension: true }
+            - { path: ^/admin, priorities: [ html ], fallback_format: html, prefer_extension: true }   
+            - { path: ^/, priorities: [ json ], fallback_format: json, prefer_extension: true }            
     routing_loader:
         default_format: ~
     exception:
@@ -218,3 +220,22 @@ knp_paginator:
 switch_user_stateless:
     parameter: 'X-Switch-User'
     role: 'ROLE_ALLOWED_TO_SWITCH'
+    
+#EasyAdmin
+easy_admin:
+    entities:
+        User:
+            controller: ApiBundle\Controller\UserAdminController
+            class: ApiBundle\Entity\User
+            list:
+                fields:
+                    [ { property: 'id', type: 'text', type_options: { read_only: true} }, 'name', 'username', 'email', 'enabled' ]
+            show:
+                fields:
+                    [ { property: 'id', type: 'text', type_options: { read_only: true} }, 'name', 'username', 'email', 'enabled' ]
+            edit:
+                fields:
+                    [ 'name', 'username', 'email', 'enabled', { property: 'plainPassword', type: 'text', type_options: { required: false } }, { property: 'roles', type: 'choice', type_options: { multiple: true, choices: { 'ROLE_USER': 'ROLE_USER', 'ROLE_ADMIN': 'ROLE_ADMIN' } } } ]
+            new:
+                fields:
+                    [ 'name', 'username', 'email', 'enabled', { property: 'plainPassword', type: 'text', type_options: { required: true } }, { property: 'roles', type: 'choice', type_options: { multiple: true, choices: { 'ROLE_USER': 'ROLE_USER', 'ROLE_ADMIN': 'ROLE_ADMIN' } } } ]

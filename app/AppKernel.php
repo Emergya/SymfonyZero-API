@@ -20,13 +20,15 @@ class AppKernel extends Kernel
             new ApiBundle\ApiBundle(),
             new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
             /*Other bundles*/
-            new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
+            //new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
             new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
             new FOS\UserBundle\FOSUserBundle(),
             new FOS\OAuthServerBundle\FOSOAuthServerBundle(),
             new OauthBundle\OauthBundle(),
             new LaFourchette\SwitchUserStatelessBundle\SwitchUserStatelessBundle(),
+        	new FOS\ElasticaBundle\FOSElasticaBundle(),
+        	new JavierEguiluz\Bundle\EasyAdminBundle\EasyAdminBundle()
         ];
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
