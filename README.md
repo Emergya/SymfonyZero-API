@@ -25,6 +25,7 @@ SymfonyZero-API uses the last LTS version: Symfony 2.8 (although you can change 
   ```
 *  You need to have the PHP-XML module installed
 *  You need to have at least version 2.6.21 of libxml
+*  You need to install elasticsearch (1.7.2 version recommended)
 *  PHP tokenizer needs to be enabled
 *  mbstring functions need to be enabled
 *  iconv needs to be enabled
